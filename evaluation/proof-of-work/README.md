@@ -1,12 +1,5 @@
 # Proof of work
 
-## Completed internally
-
-- **Reference:** `npm run check:reference` (hand-written + generated oracle sessions).
-- **Mutants:** `npm run check:mutants` (must fail generated layer, not only fixed scenarios).
-
-# Proof of work
-
 ## Reference & Mutants
 
 - **Reference:** `npm run check:reference` (hand-written + generated oracle sessions).

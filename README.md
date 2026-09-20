@@ -32,4 +32,5 @@ npm run score
 
 Verifier includes hand-written checks plus **400 seeded randomized sessions** (`T-GEN-oracle-sessions`) compared to `reference/` as oracle. Full `npm run check:reference` takes several minutes; set `GENERATED_SESSIONS=80` for faster local runs.
 
-Frontier model proof-of-work is **not recorded yet** — see `evaluation/proof-of-work/README.md`. Real runs use `npm run eval:model-record` with transcripts and token counts.
+Frontier model proof-of-work is recorded in `evaluation/proof-of-work/` for Claude Opus 5 (medium reasoning) and GPT-5.6-sol (medium reasoning). Runs use `npm run eval:model-record`.
+
