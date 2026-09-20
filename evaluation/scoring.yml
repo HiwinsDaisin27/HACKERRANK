@@ -1,0 +1,13 @@
+# Weights must sum to 1.0
+weights:
+  generated_oracle: 0.50
+  composed_scenarios: 0.11
+  precedence_composed: 0.09
+  time_bounds_composed: 0.09
+  group_nesting_composed: 0.06
+  revocation_composed: 0.05
+  tamper_detection: 0.05
+  cycle_atomicity: 0.025
+  explain_format: 0.015
+  resource_move: 0.005
+  basic_smoke: 0.005

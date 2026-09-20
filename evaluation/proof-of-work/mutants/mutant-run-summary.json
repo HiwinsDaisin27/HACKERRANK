@@ -1,0 +1,44 @@
+[
+  {
+    "name": "mutant-1-precedence-order",
+    "handScore": 0.69,
+    "generatedPassed": false,
+    "generatedDetail": "0/40",
+    "caught": true
+  },
+  {
+    "name": "mutant-2-shallow-cycle",
+    "handScore": 0.975,
+    "generatedPassed": false,
+    "generatedDetail": "0/40",
+    "caught": true
+  },
+  {
+    "name": "mutant-3-stale-revocation-cache",
+    "handScore": 0.9,
+    "generatedPassed": false,
+    "generatedDetail": "0/40",
+    "caught": true
+  },
+  {
+    "name": "mutant-4-non-atomic-cycle",
+    "handScore": 0.95,
+    "generatedPassed": false,
+    "generatedDetail": "0/40",
+    "caught": true
+  },
+  {
+    "name": "mutant-5-no-corruption-check",
+    "handScore": 0.95,
+    "generatedPassed": false,
+    "generatedDetail": "0/40",
+    "caught": true
+  },
+  {
+    "name": "mutant-6-ignore-time-bounds",
+    "handScore": 0.6,
+    "generatedPassed": false,
+    "generatedDetail": "0/40",
+    "caught": true
+  }
+]

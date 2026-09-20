@@ -1,0 +1,34 @@
+requirements:
+  - id: REQ-generated-oracle
+    description: Randomized sessions match reference oracle on query/explain and mutation outcomes
+    tests: [T-GEN-oracle-sessions]
+  - id: REQ-precedence
+    description: Specificity-first precedence with deny-over-allow at max specificity
+    tests: [T001-precedence-narrow-allow, T002-precedence-deny-same-specificity, T015-composed-precedence-time-nesting]
+  - id: REQ-group-nesting
+    description: Transitive group membership and diamond paths
+    tests: [T003-diamond-explain-path, T015-composed-precedence-time-nesting]
+  - id: REQ-cycles
+    description: Reject membership cycles of any length atomically
+    tests: [T004-cycle-three-node, T005-cycle-two-node]
+  - id: REQ-revocation
+    description: Revoke updates effective permissions for nested principals
+    tests: [T006-revoke-cascades-deep]
+  - id: REQ-tamper
+    description: Detect corrupted store on load with exit 3
+    tests: [T007-corruption-cycle-on-load, T008-corruption-dangling-member]
+  - id: REQ-time-bounds
+    description: Rule validity evaluated at --at; membership not time-gated
+    tests: [T009-time-bound-expired, T010-time-with-nested-group, T015-composed-precedence-time-nesting]
+  - id: REQ-move-resource
+    description: Prefix rewrite for rules on move-resource
+    tests: [T011-move-resource-prefix]
+  - id: REQ-explain
+    description: explain output contract and MATCH lines
+    tests: [T003-diamond-explain-path, T012-explain-default-deny, T013-explain-multi-deny-sorted]
+  - id: REQ-default-deny
+    description: Default deny when no rule matches
+    tests: [T012-explain-default-deny, T006-revoke-cascades-deep]
+  - id: REQ-basic-cli
+    description: Minimal grant/query path
+    tests: [T014-basic-grant-smoke]

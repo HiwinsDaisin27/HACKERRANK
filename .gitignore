@@ -1,0 +1,3 @@
+node_modules/
+*.query-cache.json
+.store.json.tmp.*

@@ -1,0 +1,12 @@
+{
+  "name": "grantline-reference",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "grantline": "./bin/grantline.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

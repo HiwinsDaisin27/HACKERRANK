@@ -1,0 +1,6 @@
+Hand-written checks: 15/15 PASS (npm run check:reference with SKIP_GENERATED=1)
+
+Generated oracle: 400 seeded sessions vs reference (default GENERATED_SESSIONS in generated-oracle.js).
+Run full suite: npm run check:reference  (forces SKIP_GENERATED=0; expect several minutes)
+
+Mutants: npm run check:mutants — all six fail generated oracle (see mutants/mutant-run-summary.json).
