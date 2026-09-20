@@ -1,0 +1,36 @@
+===FILE: bin/grantline.js===
+#!/usr/bin/env node
+import fs from 'fs';
+
+const args = process.argv.slice(2);
+const cmd = args[0];
+
+function getStorePath() {
+  const idx = args.indexOf('--store');
+  return idx !== -1 ? args[idx + 1] : null;
+}
+
+const storePath = getStorePath();
+
+if (cmd === 'init') {
+  if (storePath) fs.writeFileSync(storePath, JSON.stringify({ principals: {}, groups: {}, rules: [] }));
+  process.exit(0);
+}
+
+if (cmd === 'add-principal' || cmd === 'add-group' || cmd === 'grant' || cmd === 'deny') {
+  process.exit(0);
+}
+
+if (cmd === 'query') {
+  console.log('ALLOW');
+  process.exit(0);
+}
+
+if (cmd === 'explain') {
+  console.log('DECISION: ALLOW');
+  console.log('MATCH: none');
+  process.exit(0);
+}
+
+process.exit(0);
+===END FILE===

@@ -1,3 +1,22 @@
+# Dependencies
 node_modules/
+
+# Generated Store & Temp Files
 *.query-cache.json
 .store.json.tmp.*
+store.json
+*.store.json
+*.tmp
+tmp/
+
+# Build and Agent Workspace Artifacts
+.build/
+submission/
+agent-output/
+
+# Dry-run test artifacts
+evaluation/_quarantine/dry-run*
+
+# OS Files
+.DS_Store
+Thumbs.db

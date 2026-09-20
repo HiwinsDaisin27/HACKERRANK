@@ -6,7 +6,7 @@
   "scripts": {
     "build": "bash app-setup/build.sh",
     "reset": "bash app-setup/reset.sh",
-    "score": "cross-env GRANTLINE_BIN=node reference/bin/grantline.js node evaluation/tests/run-tests.js",
+    "score": "cross-env GRANTLINE_BIN=\"node reference/bin/grantline.js\" node evaluation/tests/run-tests.js",
     "check:reference": "cross-env SKIP_GENERATED=0 GRANTLINE_BIN=\"node reference/bin/grantline.js\" node evaluation/tests/run-tests.js",
     "check:mutants": "node evaluation/scripts/check-mutants.js",
     "generate": "node evaluation/scripts/generate.js",
