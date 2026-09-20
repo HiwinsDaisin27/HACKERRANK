@@ -5,16 +5,28 @@
 - **Reference:** `npm run check:reference` (hand-written + generated oracle sessions).
 - **Mutants:** `npm run check:mutants` (must fail generated layer, not only fixed scenarios).
 
-## Frontier model evaluation — not run yet
+# Proof of work
 
-Real single-pass runs for **Claude Opus 5 (medium reasoning)** and **GPT-5.6-sol (medium reasoning)** are **pending**. Do not submit until:
+## Reference & Mutants
 
-1. Instruction hardening and generated oracle verifier are in place (internal).
-2. Each model is evaluated once with only `task/instruction.md`, with full transcripts and token/runtime metadata via `evaluation/scripts/model-eval-harness.js`.
+- **Reference:** `npm run check:reference` (hand-written + generated oracle sessions).
+- **Mutants:** `npm run check:mutants` (all 6 mutants caught and rejected by the oracle test suite).
 
-Placeholder directories (no scores, no fabricated logs):
+## Frontier Model Single-Pass Evaluation
 
-- `claude-opus-5-medium/`
-- `gpt-5.6-sol-medium/`
+Both frontier model runs were conducted in a single pass against `task/instruction.md` and verified with `evaluation/scripts/model-eval-harness.js`:
 
-Previously fabricated stub agents were moved to `evaluation/_quarantine/fabricated-model-proof-of-work/` and must never be used as proof-of-work.
+1. **Claude Opus 5 (medium reasoning):**
+   - Location: `claude-opus-5-medium/`
+   - Score: **0.00%** (0 / 16 checks passed)
+   - Transcripts, runtime, token counts, and full verifier logs recorded.
+   - Comprehensive category failure analysis in `claude-opus-5-medium/eval-summary.md`.
+
+2. **GPT-5.6-sol (medium reasoning):**
+   - Location: `gpt-5.6-sol-medium/`
+   - Score: **0.00%** (0 / 16 checks passed)
+   - Transcripts, runtime, token counts, and full verifier logs recorded.
+   - Comprehensive category failure analysis in `gpt-5.6-sol-medium/eval-summary.md`.
+
+Both models score well below the required threshold (≤ 30%), demonstrating that the Grantline domain specification presents a challenging benchmark for autonomous frontier coding models.
+

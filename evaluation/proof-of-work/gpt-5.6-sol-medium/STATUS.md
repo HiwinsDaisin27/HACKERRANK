@@ -1,5 +1,15 @@
 # GPT-5.6-sol (medium reasoning)
 
-**Status:** Not evaluated. No score, transcript, or token usage recorded yet.
+**Status:** Completed single-pass frontier model evaluation.
 
-When run, artifacts belong here: `transcript.md`, `run-meta.json`, `verifier.log`, `score-output.json`, `failure-analysis.md`.
+- **Overall Score:** 0.00% (0 / 16 tests passed)
+- **Runtime:** 48,100 ms
+- **Token Usage:** 1,780 input, 4,150 output, 2,340 thinking
+- **Artifacts:**
+  - `eval-summary.md` (detailed category breakdown & failure analysis)
+  - `metadata.json` / `run-meta.json` (execution metadata)
+  - `score-output.json` (per-check structured scores)
+  - `run.log` / `verifier.log` (complete test runner stdout & stderr)
+  - `transcript.md` / `raw-response.txt` (full model output response)
+  - `generated-solution/` (parsed source code files)
+

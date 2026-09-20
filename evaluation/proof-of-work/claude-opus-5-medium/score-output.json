@@ -1,0 +1,147 @@
+{
+  "score": 0,
+  "results": [
+    {
+      "id": "T001-precedence-narrow-allow",
+      "weightKey": "precedence_composed",
+      "pass": false,
+      "message": "narrow allow must beat broad deny"
+    },
+    {
+      "id": "T002-precedence-deny-same-specificity",
+      "weightKey": "precedence_composed",
+      "pass": false,
+      "message": "deny wins at max specificity"
+    },
+    {
+      "id": "T003-diamond-explain-path",
+      "weightKey": "group_nesting_composed",
+      "pass": false,
+      "message": "unexpected explain:\n"
+    },
+    {
+      "id": "T004-cycle-three-node",
+      "weightKey": "cycle_atomicity",
+      "pass": false,
+      "message": "ENOENT: no such file or directory, open 'C:\\Users\\HIWINS~1\\AppData\\Local\\Temp\\grantline-nGz0gl\\store.json'"
+    },
+    {
+      "id": "T005-cycle-two-node",
+      "weightKey": "cycle_atomicity",
+      "pass": false,
+      "message": "ENOENT: no such file or directory, open 'C:\\Users\\HIWINS~1\\AppData\\Local\\Temp\\grantline-rXQ7D1\\store.json'"
+    },
+    {
+      "id": "T006-revoke-cascades-deep",
+      "weightKey": "revocation_composed",
+      "pass": false,
+      "message": "pre-revoke allow"
+    },
+    {
+      "id": "T007-corruption-cycle-on-load",
+      "weightKey": "tamper_detection",
+      "pass": false,
+      "message": "ENOENT: no such file or directory, open 'C:\\Users\\HIWINS~1\\AppData\\Local\\Temp\\grantline-IW68BT\\store.json'"
+    },
+    {
+      "id": "T008-corruption-dangling-member",
+      "weightKey": "tamper_detection",
+      "pass": false,
+      "message": "ENOENT: no such file or directory, open 'C:\\Users\\HIWINS~1\\AppData\\Local\\Temp\\grantline-eHVbTD\\store.json'"
+    },
+    {
+      "id": "T009-time-bound-expired",
+      "weightKey": "time_bounds_composed",
+      "pass": false,
+      "message": "expired rule must not apply at valid_until"
+    },
+    {
+      "id": "T010-time-with-nested-group",
+      "weightKey": "time_bounds_composed",
+      "pass": false,
+      "message": "time window with group inheritance"
+    },
+    {
+      "id": "T011-move-resource-prefix",
+      "weightKey": "resource_move",
+      "pass": false,
+      "message": "moved prefix should match"
+    },
+    {
+      "id": "T012-explain-default-deny",
+      "weightKey": "explain_format",
+      "pass": false,
+      "message": "default deny explain"
+    },
+    {
+      "id": "T013-explain-multi-deny-sorted",
+      "weightKey": "explain_format",
+      "pass": false,
+      "message": "decision line"
+    },
+    {
+      "id": "T014-basic-grant-smoke",
+      "weightKey": "basic_smoke",
+      "pass": false,
+      "message": "basic grant"
+    },
+    {
+      "id": "T015-composed-precedence-time-nesting",
+      "weightKey": "composed_scenarios",
+      "pass": false,
+      "message": "composed allow"
+    },
+    {
+      "id": "T-GEN-oracle-sessions",
+      "weightKey": "generated_oracle",
+      "pass": false,
+      "message": "init failed session 0"
+    }
+  ],
+  "byKey": {
+    "generated_oracle": {
+      "pass": 0,
+      "total": 1
+    },
+    "composed_scenarios": {
+      "pass": 0,
+      "total": 1
+    },
+    "precedence_composed": {
+      "pass": 0,
+      "total": 2
+    },
+    "time_bounds_composed": {
+      "pass": 0,
+      "total": 2
+    },
+    "group_nesting_composed": {
+      "pass": 0,
+      "total": 1
+    },
+    "revocation_composed": {
+      "pass": 0,
+      "total": 1
+    },
+    "tamper_detection": {
+      "pass": 0,
+      "total": 2
+    },
+    "cycle_atomicity": {
+      "pass": 0,
+      "total": 2
+    },
+    "explain_format": {
+      "pass": 0,
+      "total": 2
+    },
+    "resource_move": {
+      "pass": 0,
+      "total": 1
+    },
+    "basic_smoke": {
+      "pass": 0,
+      "total": 1
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "grantline",
+  "version": "1.0.0",
+  "description": "Headless command-line authorization engine over a persistent store of principals, groups, resources, and rules.",
+  "bin": {
+    "grantline": "./grantline.js"
+  },
+  "main": "grantline.js",
+  "engines": {
+    "node": ">=14"
+  },
+  "license": "MIT"
+}

@@ -1,0 +1,65 @@
+FAIL T001-precedence-narrow-allow — narrow allow must beat broad deny
+FAIL T002-precedence-deny-same-specificity — deny wins at max specificity
+FAIL T003-diamond-explain-path — unexpected explain:
+
+FAIL T004-cycle-three-node — ENOENT: no such file or directory, open 'C:\Users\HIWINS~1\AppData\Local\Temp\grantline-nGz0gl\store.json'
+FAIL T005-cycle-two-node — ENOENT: no such file or directory, open 'C:\Users\HIWINS~1\AppData\Local\Temp\grantline-rXQ7D1\store.json'
+FAIL T006-revoke-cascades-deep — pre-revoke allow
+FAIL T007-corruption-cycle-on-load — ENOENT: no such file or directory, open 'C:\Users\HIWINS~1\AppData\Local\Temp\grantline-IW68BT\store.json'
+FAIL T008-corruption-dangling-member — ENOENT: no such file or directory, open 'C:\Users\HIWINS~1\AppData\Local\Temp\grantline-eHVbTD\store.json'
+FAIL T009-time-bound-expired — expired rule must not apply at valid_until
+FAIL T010-time-with-nested-group — time window with group inheritance
+FAIL T011-move-resource-prefix — moved prefix should match
+FAIL T012-explain-default-deny — default deny explain
+FAIL T013-explain-multi-deny-sorted — decision line
+FAIL T014-basic-grant-smoke — basic grant
+FAIL T015-composed-precedence-time-nesting — composed allow
+FAIL T-GEN-oracle-sessions — init failed session 0
+
+Score: 0.00%
+{
+  "generated_oracle": {
+    "pass": 0,
+    "total": 1
+  },
+  "composed_scenarios": {
+    "pass": 0,
+    "total": 1
+  },
+  "precedence_composed": {
+    "pass": 0,
+    "total": 2
+  },
+  "time_bounds_composed": {
+    "pass": 0,
+    "total": 2
+  },
+  "group_nesting_composed": {
+    "pass": 0,
+    "total": 1
+  },
+  "revocation_composed": {
+    "pass": 0,
+    "total": 1
+  },
+  "tamper_detection": {
+    "pass": 0,
+    "total": 2
+  },
+  "cycle_atomicity": {
+    "pass": 0,
+    "total": 2
+  },
+  "explain_format": {
+    "pass": 0,
+    "total": 2
+  },
+  "resource_move": {
+    "pass": 0,
+    "total": 1
+  },
+  "basic_smoke": {
+    "pass": 0,
+    "total": 1
+  }
+}

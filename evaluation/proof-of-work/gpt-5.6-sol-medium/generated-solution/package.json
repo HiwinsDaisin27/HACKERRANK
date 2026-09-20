@@ -1,0 +1,14 @@
+{
+  "name": "grantline",
+  "version": "1.0.0",
+  "description": "Headless command-line authorization CLI",
+  "main": "bin/grantline.js",
+  "bin": {
+    "grantline": "bin/grantline.js"
+  },
+  "dependencies": {},
+  "devDependencies": {},
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
