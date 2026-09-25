@@ -2,11 +2,11 @@ FAIL T001-precedence-narrow-allow — narrow allow must beat broad deny
 FAIL T002-precedence-deny-same-specificity — deny wins at max specificity
 FAIL T003-diamond-explain-path — unexpected explain:
 
-FAIL T004-cycle-three-node — ENOENT: no such file or directory, open 'C:\Users\HIWINS~1\AppData\Local\Temp\grantline-3ot9QX\store.json'
-FAIL T005-cycle-two-node — ENOENT: no such file or directory, open 'C:\Users\HIWINS~1\AppData\Local\Temp\grantline-UIFdju\store.json'
+PASS T004-cycle-three-node
+PASS T005-cycle-two-node
 FAIL T006-revoke-cascades-deep — pre-revoke allow
-FAIL T007-corruption-cycle-on-load — ENOENT: no such file or directory, open 'C:\Users\HIWINS~1\AppData\Local\Temp\grantline-lmfoY9\store.json'
-FAIL T008-corruption-dangling-member — ENOENT: no such file or directory, open 'C:\Users\HIWINS~1\AppData\Local\Temp\grantline-dmvdnG\store.json'
+FAIL T007-corruption-cycle-on-load — Cannot read properties of undefined (reading 'members')
+FAIL T008-corruption-dangling-member — Cannot read properties of undefined (reading 'members')
 FAIL T009-time-bound-expired — expired rule must not apply at valid_until
 FAIL T010-time-with-nested-group — time window with group inheritance
 FAIL T011-move-resource-prefix — moved prefix should match
@@ -14,9 +14,9 @@ FAIL T012-explain-default-deny — default deny explain
 FAIL T013-explain-multi-deny-sorted — decision line
 FAIL T014-basic-grant-smoke — basic grant
 FAIL T015-composed-precedence-time-nesting — composed allow
-FAIL T-GEN-oracle-sessions — init failed session 0
+FAIL T-GEN-oracle-sessions — bootstrap failed session 0
 
-Score: 0.00%
+Score: 2.50%
 {
   "generated_oracle": {
     "pass": 0,
@@ -47,7 +47,7 @@ Score: 0.00%
     "total": 2
   },
   "cycle_atomicity": {
-    "pass": 0,
+    "pass": 2,
     "total": 2
   },
   "explain_format": {

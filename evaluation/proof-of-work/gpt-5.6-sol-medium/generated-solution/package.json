@@ -1,14 +1,17 @@
 {
   "name": "grantline",
   "version": "1.0.0",
-  "description": "Headless command-line authorization CLI",
-  "main": "bin/grantline.js",
+  "description": "Persistent headless authorization CLI",
+  "license": "MIT",
+  "type": "commonjs",
+  "main": "src/grantline.js",
   "bin": {
     "grantline": "bin/grantline.js"
   },
-  "dependencies": {},
-  "devDependencies": {},
+  "scripts": {
+    "start": "node bin/grantline.js"
+  },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=18"
   }
 }

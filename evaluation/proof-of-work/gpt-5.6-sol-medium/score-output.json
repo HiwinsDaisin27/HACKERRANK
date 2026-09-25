@@ -1,5 +1,5 @@
 {
-  "score": 0,
+  "score": 0.025,
   "results": [
     {
       "id": "T001-precedence-narrow-allow",
@@ -22,14 +22,12 @@
     {
       "id": "T004-cycle-three-node",
       "weightKey": "cycle_atomicity",
-      "pass": false,
-      "message": "ENOENT: no such file or directory, open 'C:\\Users\\HIWINS~1\\AppData\\Local\\Temp\\grantline-3ot9QX\\store.json'"
+      "pass": true
     },
     {
       "id": "T005-cycle-two-node",
       "weightKey": "cycle_atomicity",
-      "pass": false,
-      "message": "ENOENT: no such file or directory, open 'C:\\Users\\HIWINS~1\\AppData\\Local\\Temp\\grantline-UIFdju\\store.json'"
+      "pass": true
     },
     {
       "id": "T006-revoke-cascades-deep",
@@ -41,13 +39,13 @@
       "id": "T007-corruption-cycle-on-load",
       "weightKey": "tamper_detection",
       "pass": false,
-      "message": "ENOENT: no such file or directory, open 'C:\\Users\\HIWINS~1\\AppData\\Local\\Temp\\grantline-lmfoY9\\store.json'"
+      "message": "Cannot read properties of undefined (reading 'members')"
     },
     {
       "id": "T008-corruption-dangling-member",
       "weightKey": "tamper_detection",
       "pass": false,
-      "message": "ENOENT: no such file or directory, open 'C:\\Users\\HIWINS~1\\AppData\\Local\\Temp\\grantline-dmvdnG\\store.json'"
+      "message": "Cannot read properties of undefined (reading 'members')"
     },
     {
       "id": "T009-time-bound-expired",
@@ -95,7 +93,7 @@
       "id": "T-GEN-oracle-sessions",
       "weightKey": "generated_oracle",
       "pass": false,
-      "message": "init failed session 0"
+      "message": "bootstrap failed session 0"
     }
   ],
   "byKey": {
@@ -128,7 +126,7 @@
       "total": 2
     },
     "cycle_atomicity": {
-      "pass": 0,
+      "pass": 2,
       "total": 2
     },
     "explain_format": {
