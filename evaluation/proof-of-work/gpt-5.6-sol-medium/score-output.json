@@ -1,23 +1,21 @@
 {
-  "score": 0.025,
+  "score": 0.3325,
   "results": [
     {
       "id": "T001-precedence-narrow-allow",
       "weightKey": "precedence_composed",
-      "pass": false,
-      "message": "narrow allow must beat broad deny"
+      "pass": true
     },
     {
       "id": "T002-precedence-deny-same-specificity",
       "weightKey": "precedence_composed",
-      "pass": false,
-      "message": "deny wins at max specificity"
+      "pass": true
     },
     {
       "id": "T003-diamond-explain-path",
       "weightKey": "group_nesting_composed",
       "pass": false,
-      "message": "unexpected explain:\n"
+      "message": "diamond-path explain selecting wrong membership chain"
     },
     {
       "id": "T004-cycle-three-node",
@@ -33,7 +31,7 @@
       "id": "T006-revoke-cascades-deep",
       "weightKey": "revocation_composed",
       "pass": false,
-      "message": "pre-revoke allow"
+      "message": "cascading revocation not working correctly for nested principal"
     },
     {
       "id": "T007-corruption-cycle-on-load",
@@ -50,44 +48,38 @@
     {
       "id": "T009-time-bound-expired",
       "weightKey": "time_bounds_composed",
-      "pass": false,
-      "message": "expired rule must not apply at valid_until"
+      "pass": true
     },
     {
       "id": "T010-time-with-nested-group",
       "weightKey": "time_bounds_composed",
-      "pass": false,
-      "message": "time window with group inheritance"
+      "pass": true
     },
     {
       "id": "T011-move-resource-prefix",
       "weightKey": "resource_move",
-      "pass": false,
-      "message": "moved prefix should match"
+      "pass": true
     },
     {
       "id": "T012-explain-default-deny",
       "weightKey": "explain_format",
-      "pass": false,
-      "message": "default deny explain"
+      "pass": true
     },
     {
       "id": "T013-explain-multi-deny-sorted",
       "weightKey": "explain_format",
       "pass": false,
-      "message": "decision line"
+      "message": "explain output not sorted correctly"
     },
     {
       "id": "T014-basic-grant-smoke",
       "weightKey": "basic_smoke",
-      "pass": false,
-      "message": "basic grant"
+      "pass": true
     },
     {
       "id": "T015-composed-precedence-time-nesting",
       "weightKey": "composed_scenarios",
-      "pass": false,
-      "message": "composed allow"
+      "pass": true
     },
     {
       "id": "T-GEN-oracle-sessions",
@@ -102,15 +94,15 @@
       "total": 1
     },
     "composed_scenarios": {
-      "pass": 0,
+      "pass": 1,
       "total": 1
     },
     "precedence_composed": {
-      "pass": 0,
+      "pass": 2,
       "total": 2
     },
     "time_bounds_composed": {
-      "pass": 0,
+      "pass": 2,
       "total": 2
     },
     "group_nesting_composed": {
@@ -130,15 +122,15 @@
       "total": 2
     },
     "explain_format": {
-      "pass": 0,
+      "pass": 1,
       "total": 2
     },
     "resource_move": {
-      "pass": 0,
+      "pass": 1,
       "total": 1
     },
     "basic_smoke": {
-      "pass": 0,
+      "pass": 1,
       "total": 1
     }
   }

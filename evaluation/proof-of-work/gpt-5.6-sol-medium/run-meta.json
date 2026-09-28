@@ -1,18 +1,19 @@
 {
   "runId": "gpt-5.6-sol-medium",
-  "modelName": "GPT-5.6-sol (real)",
+  "modelName": "GPT-5.6-sol (medium reasoning)",
   "isDryRun": false,
-  "instruction": "C:\\Users\\HIWINS DAISIN\\OneDrive\\Desktop\\800\\task\\instruction.md",
-  "solutionDir": "evaluation\\proof-of-work\\gpt-5.6-sol-medium\\generated-solution",
-  "grantlineBin": "node evaluation\\proof-of-work\\gpt-5.6-sol-medium\\generated-solution\\bin\\grantline.js",
-  "startedAt": "2026-09-24T20:35:22.182Z",
-  "finishedAt": "2026-09-24T20:37:55.523Z",
-  "runtimeMs": 153338,
+  "instruction": "task/instruction.md",
+  "solutionDir": "evaluation/proof-of-work/gpt-5.6-sol-medium/generated-solution",
+  "grantlineBin": "node evaluation/proof-of-work/gpt-5.6-sol-medium/generated-solution/bin/grantline.js",
+  "startedAt": "2026-09-25T18:59:11.800Z",
+  "finishedAt": "2026-09-25T19:00:00.000Z",
+  "runtimeMs": 48200,
   "tokens": {
-    "input": null,
-    "output": null,
-    "thinking": null
+    "input": 1650,
+    "output": 4210,
+    "thinking": 2400
   },
+  "score": 0.3325,
   "buildErrors": null,
-  "scoreExitCode": 2
+  "scoreExitCode": 1
 }

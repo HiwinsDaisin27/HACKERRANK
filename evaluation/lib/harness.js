@@ -20,6 +20,10 @@ export function runGrantline(args, opts = {}) {
     env: { ...process.env, ...opts.env },
     cwd: opts.cwd,
   });
+  if (res.error) {
+    const errorMsg = `[HARNESS SPAWN ERROR] ${res.error.message || res.error}`;
+    console.error(errorMsg);
+  }
   return {
     status: res.status ?? (res.error ? 127 : 0),
     stdout: res.stdout ?? '',

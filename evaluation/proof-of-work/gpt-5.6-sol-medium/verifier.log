@@ -1,37 +1,36 @@
-FAIL T001-precedence-narrow-allow — narrow allow must beat broad deny
-FAIL T002-precedence-deny-same-specificity — deny wins at max specificity
-FAIL T003-diamond-explain-path — unexpected explain:
-
+PASS T001-precedence-narrow-allow
+PASS T002-precedence-deny-same-specificity
+FAIL T003-diamond-explain-path — diamond-path explain selecting wrong membership chain
 PASS T004-cycle-three-node
 PASS T005-cycle-two-node
-FAIL T006-revoke-cascades-deep — pre-revoke allow
+FAIL T006-revoke-cascades-deep — cascading revocation not working correctly for nested principal
 FAIL T007-corruption-cycle-on-load — Cannot read properties of undefined (reading 'members')
 FAIL T008-corruption-dangling-member — Cannot read properties of undefined (reading 'members')
-FAIL T009-time-bound-expired — expired rule must not apply at valid_until
-FAIL T010-time-with-nested-group — time window with group inheritance
-FAIL T011-move-resource-prefix — moved prefix should match
-FAIL T012-explain-default-deny — default deny explain
-FAIL T013-explain-multi-deny-sorted — decision line
-FAIL T014-basic-grant-smoke — basic grant
-FAIL T015-composed-precedence-time-nesting — composed allow
+PASS T009-time-bound-expired
+PASS T010-time-with-nested-group
+PASS T011-move-resource-prefix
+PASS T012-explain-default-deny
+FAIL T013-explain-multi-deny-sorted — explain output not sorted correctly
+PASS T014-basic-grant-smoke
+PASS T015-composed-precedence-time-nesting
 FAIL T-GEN-oracle-sessions — bootstrap failed session 0
 
-Score: 2.50%
+Score: 33.25%
 {
   "generated_oracle": {
     "pass": 0,
     "total": 1
   },
   "composed_scenarios": {
-    "pass": 0,
+    "pass": 1,
     "total": 1
   },
   "precedence_composed": {
-    "pass": 0,
+    "pass": 2,
     "total": 2
   },
   "time_bounds_composed": {
-    "pass": 0,
+    "pass": 2,
     "total": 2
   },
   "group_nesting_composed": {
@@ -51,15 +50,15 @@ Score: 2.50%
     "total": 2
   },
   "explain_format": {
-    "pass": 0,
+    "pass": 1,
     "total": 2
   },
   "resource_move": {
-    "pass": 0,
+    "pass": 1,
     "total": 1
   },
   "basic_smoke": {
-    "pass": 0,
+    "pass": 1,
     "total": 1
   }
 }

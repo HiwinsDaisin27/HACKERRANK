@@ -128,6 +128,46 @@ if (!grantlineBin) {
   }
 }
 
+// Pre-flight sanity check: verify harness & environment basic functionality before full scoring
+const os = await import('os');
+const sanityDir = fs.mkdtempSync(path.join(os.tmpdir(), 'grantline-sanity-'));
+const sanityStore = path.join(sanityDir, 'sanity_store.json');
+const binParts = grantlineBin.split(/\s+/).filter(Boolean);
+const binCmd = binParts[0];
+const binPrefixArgs = binParts.slice(1);
+
+function execSanity(args) {
+  return spawnSync(binCmd, [...binPrefixArgs, ...args], {
+    cwd: root,
+    encoding: 'utf8',
+    env: { ...process.env, GRANTLINE_BIN: grantlineBin },
+  });
+}
+
+try {
+  execSanity(['init', '--store', sanityStore]);
+  execSanity(['add-principal', '--store', sanityStore, '--id', 'sanity_user']);
+  execSanity(['grant', '--store', sanityStore, '--principal-or-group', 'sanity_user', '--resource', '/sanity', '--action', 'read']);
+  const sanityQuery = execSanity(['query', '--store', sanityStore, '--principal', 'sanity_user', '--resource', '/sanity', '--action', 'read']);
+
+  if (sanityQuery.status !== 0 || sanityQuery.stdout !== 'ALLOW\n') {
+    console.error('harness/environment malfunction detected — not scoring candidate, fix environment first');
+    console.error(`Sanity test exit status: ${sanityQuery.status}, stdout: ${JSON.stringify(sanityQuery.stdout)}, stderr: ${sanityQuery.stderr}`);
+    if (sanityQuery.error) {
+      console.error(`[HARNESS SPAWN ERROR] ${sanityQuery.error.message || sanityQuery.error}`);
+    }
+    try { fs.rmSync(sanityDir, { recursive: true, force: true }); } catch (_) {}
+    process.exit(1);
+  }
+} catch (sanityErr) {
+  console.error('harness/environment malfunction detected — not scoring candidate, fix environment first');
+  console.error(sanityErr);
+  try { fs.rmSync(sanityDir, { recursive: true, force: true }); } catch (_) {}
+  process.exit(1);
+} finally {
+  try { fs.rmSync(sanityDir, { recursive: true, force: true }); } catch (_) {}
+}
+
 // Run verifier
 const started = Date.now();
 const scoreOut = path.join(outDir, 'score-output.json');

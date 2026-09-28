@@ -20,45 +20,34 @@
   }
 }
 ===END FILE===
+
 ===FILE: bin/grantline.js===
 #!/usr/bin/env node
 'use strict';
 const { run } = require('../src/grantline');
 run(process.argv.slice(2));
 ===END FILE===
+
 ===FILE: src/grantline.js===
 'use strict';
+
 const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
+
 const ACTIONS = new Set(['read', 'write', 'admin']);
 const EFFECTS = new Set(['allow', 'deny']);
-const TARGETTYPES = new Set(['principal', 'group']);
-const IDPATTERN = /^[A-Za-z0-9._-]+$/;
-const RULEIDPATTERN = /^r([1-9][0-9]*)$/;
-const TIMESTAMPPATTERN =
-  /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/;
-const COMMANDOPTIONS = {
-  init: {
-    required: ['store'],
-    optional: []
-  },
-  'add-principal': {
-    required: ['store', 'id'],
-    optional: []
-  },
-  'add-group': {
-    required: ['store', 'id'],
-    optional: []
-  },
-  'add-group-member': {
-    required: ['store', 'group', 'member'],
-    optional: []
-  },
-  'remove-group-member': {
-    required: ['store', 'group', 'member'],
-    optional: []
-  },
+const TARGET_TYPES = new Set(['principal', 'group']);
+const ID_PATTERN = /^[A-Za-z0-9._-]+$/;
+const RULE_ID_PATTERN = /^r([1-9][0-9]*)$/;
+const TIMESTAMP_PATTERN = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.(\d+))?(Z|[+-]\d{2}:\d{2})$/;
+
+const COMMAND_OPTIONS = {
+  init: { required: ['store'], optional: [] },
+  'add-principal': { required: ['store', 'id'], optional: [] },
+  'add-group': { required: ['store', 'id'], optional: [] },
+  'add-group-member': { required: ['store', 'group', 'member'], optional: [] },
+  'remove-group-member': { required: ['store', 'group', 'member'], optional: [] },
   grant: {
     required: ['store', 'principal-or-group', 'resource', 'action'],
     optional: ['valid-from', 'valid-until']
@@ -67,23 +56,12 @@ const COMMANDOPTIONS = {
     required: ['store', 'principal-or-group', 'resource', 'action'],
     optional: ['valid-from', 'valid-until']
   },
-  revoke: {
-    required: ['store', 'rule-id'],
-    optional: []
-  },
-  query: {
-    required: ['store', 'principal', 'resource', 'action'],
-    optional: ['at']
-  },
-  explain: {
-    required: ['store', 'principal', 'resource', 'action'],
-    optional: ['at']
-  },
-  'move-resource': {
-    required: ['store', 'from', 'to'],
-    optional: []
-  }
+  revoke: { required: ['store', 'rule-id'], optional: [] },
+  query: { required: ['store', 'principal', 'resource', 'action'], optional: ['at'] },
+  explain: { required: ['store', 'principal', 'resource', 'action'], optional: ['at'] },
+  'move-resource': { required: ['store', 'from', 'to'], optional: [] }
 };
+
 class GrantlineError extends Error {
   constructor(message, exitCode = 1) {
     super(message);
@@ -91,24 +69,30 @@ class GrantlineError extends Error {
     this.exitCode = exitCode;
   }
 }
+
 class StoreCorruptionError extends GrantlineError {
   constructor(reason) {
     super(`store corruption detected: ${sanitizeReason(reason)}`, 3);
     this.name = 'StoreCorruptionError';
   }
 }
+
 function sanitizeReason(reason) {
   return String(reason).replace(/[\r\n]+/g, ' ').trim() || 'invalid store';
 }
+
 function fail(message) {
   throw new GrantlineError(message, 1);
 }
+
 function corruption(reason) {
   throw new StoreCorruptionError(reason);
 }
+
 function own(object, key) {
   return Object.prototype.hasOwnProperty.call(object, key);
 }
+
 function exactKeys(object, expectedKeys) {
   if (!object || typeof object !== 'object' || Array.isArray(object)) {
     return false;
@@ -120,9 +104,11 @@ function exactKeys(object, expectedKeys) {
   }
   return actual.every((key, index) => key === expected[index]);
 }
+
 function isValidId(value) {
-  return typeof value === 'string' && IDPATTERN.test(value);
+  return typeof value === 'string' && ID_PATTERN.test(value);
 }
+
 function isValidResource(resource) {
   if (typeof resource !== 'string' || !resource.startsWith('/')) {
     return false;
@@ -136,23 +122,25 @@ function isValidResource(resource) {
   return resource
     .slice(1)
     .split('/')
-    .every(segment => segment.length > 0);
+    .every((segment) => segment.length > 0);
 }
+
 function parseTimestamp(value, label) {
   if (typeof value !== 'string') {
     fail(`${label} must be an ISO 8601 timestamp`);
   }
-  const match = TIMESTAMPPATTERN.exec(value);
+  const match = TIMESTAMP_PATTERN.exec(value);
   if (!match) {
     fail(`${label} must be an ISO 8601 timestamp`);
   }
-  const year = Number(match[1]);
   const month = Number(match[2]);
   const day = Number(match[3]);
   const hour = Number(match[4]);
   const minute = Number(match[5]);
   const second = Number(match[6]);
+  const year = Number(match[1]);
   const zone = match[8];
+
   if (month < 1 || month > 12) {
     fail(`${label} must be an ISO 8601 timestamp`);
   }
@@ -163,7 +151,7 @@ function parseTimestamp(value, label) {
   if (hour > 23 || minute > 59 || second > 59) {
     fail(`${label} must be an ISO 8601 timestamp`);
   }
-  if (zone !== 'Z' && zone) {
+  if (zone !== 'Z') {
     const offsetHour = Number(zone.slice(1, 3));
     const offsetMinute = Number(zone.slice(4, 6));
     if (offsetHour > 23 || offsetMinute > 59) {
@@ -176,6 +164,7 @@ function parseTimestamp(value, label) {
   }
   return milliseconds;
 }
+
 function parseStoredTimestamp(value, label) {
   try {
     return parseTimestamp(value, label);
@@ -183,9 +172,11 @@ function parseStoredTimestamp(value, label) {
     corruption(`${label} is invalid`);
   }
 }
+
 function validateTimeWindow(validFrom, validUntil, source = 'rule') {
   let fromMilliseconds = null;
   let untilMilliseconds = null;
+
   if (validFrom !== null && validFrom !== undefined) {
     fromMilliseconds =
       source === 'rule'
@@ -198,6 +189,7 @@ function validateTimeWindow(validFrom, validUntil, source = 'rule') {
         ? parseStoredTimestamp(validUntil, 'rule valid_until')
         : parseTimestamp(validUntil, '--valid-until');
   }
+
   if (
     fromMilliseconds !== null &&
     untilMilliseconds !== null &&
@@ -208,11 +200,10 @@ function validateTimeWindow(validFrom, validUntil, source = 'rule') {
     }
     fail('--valid-from must be earlier than --valid-until');
   }
-  return {
-    fromMilliseconds,
-    untilMilliseconds
-  };
+
+  return { fromMilliseconds, untilMilliseconds };
 }
+
 function createEmptyStore() {
   return {
     version: 1,
@@ -222,25 +213,17 @@ function createEmptyStore() {
     rules: []
   };
 }
+
 function validateStore(store) {
   if (
-    !exactKeys(store, [
-      'version',
-      'next_rule_id',
-      'principals',
-      'groups',
-      'rules'
-    ])
+    !exactKeys(store, ['version', 'next_rule_id', 'principals', 'groups', 'rules'])
   ) {
     corruption('invalid root structure');
   }
   if (store.version !== 1) {
     corruption('unsupported store version');
   }
-  if (
-    !Number.isSafeInteger(store.next_rule_id) ||
-    store.next_rule_id < 1
-  ) {
+  if (!Number.isSafeInteger(store.next_rule_id) || store.next_rule_id < 1) {
     corruption('invalid next_rule_id');
   }
   if (!Array.isArray(store.principals)) {
@@ -252,6 +235,7 @@ function validateStore(store) {
   if (!Array.isArray(store.rules)) {
     corruption('rules must be an array');
   }
+
   const principalIds = new Set();
   for (const principalId of store.principals) {
     if (!isValidId(principalId)) {
@@ -262,6 +246,7 @@ function validateStore(store) {
     }
     principalIds.add(principalId);
   }
+
   const groupIds = new Set();
   const groupMap = new Map();
   for (const group of store.groups) {
@@ -283,6 +268,7 @@ function validateStore(store) {
     groupIds.add(group.id);
     groupMap.set(group.id, group);
   }
+
   for (const group of store.groups) {
     const members = new Set();
     for (const memberId of group.members) {
@@ -298,9 +284,12 @@ function validateStore(store) {
       members.add(memberId);
     }
   }
+
   validateAcyclicGroups(groupMap, groupIds);
+
   const ruleIds = new Set();
   let largestRuleNumber = 0;
+
   for (const rule of store.rules) {
     if (
       !exactKeys(rule, [
@@ -319,7 +308,7 @@ function validateStore(store) {
     if (typeof rule.id !== 'string') {
       corruption('invalid rule id');
     }
-    const ruleIdMatch = RULEIDPATTERN.exec(rule.id);
+    const ruleIdMatch = RULE_ID_PATTERN.exec(rule.id);
     if (!ruleIdMatch) {
       corruption(`invalid rule id ${rule.id}`);
     }
@@ -332,19 +321,17 @@ function validateStore(store) {
     }
     largestRuleNumber = Math.max(largestRuleNumber, ruleNumber);
     ruleIds.add(rule.id);
+
     if (!EFFECTS.has(rule.effect)) {
       corruption(`invalid effect for rule ${rule.id}`);
     }
-    if (!TARGETTYPES.has(rule.target_type)) {
+    if (!TARGET_TYPES.has(rule.target_type)) {
       corruption(`invalid target type for rule ${rule.id}`);
     }
     if (!isValidId(rule.target_id)) {
       corruption(`invalid target id for rule ${rule.id}`);
     }
-    if (
-      rule.target_type === 'principal' &&
-      !principalIds.has(rule.target_id)
-    ) {
+    if (rule.target_type === 'principal' && !principalIds.has(rule.target_id)) {
       corruption(`dangling target for rule ${rule.id}`);
     }
     if (rule.target_type === 'group' && !groupIds.has(rule.target_id)) {
@@ -356,31 +343,25 @@ function validateStore(store) {
     if (!ACTIONS.has(rule.action)) {
       corruption(`invalid action for rule ${rule.id}`);
     }
-    if (
-      rule.valid_from !== null &&
-      typeof rule.valid_from !== 'string'
-    ) {
+    if (rule.valid_from !== null && typeof rule.valid_from !== 'string') {
       corruption(`invalid valid_from for rule ${rule.id}`);
     }
-    if (
-      rule.valid_until !== null &&
-      typeof rule.valid_until !== 'string'
-    ) {
+    if (rule.valid_until !== null && typeof rule.valid_until !== 'string') {
       corruption(`invalid valid_until for rule ${rule.id}`);
     }
     validateTimeWindow(rule.valid_from, rule.valid_until, 'rule');
   }
+
   if (store.next_rule_id <= largestRuleNumber) {
     corruption('next_rule_id does not follow existing rule ids');
   }
-  return {
-    principalIds,
-    groupIds,
-    groupMap
-  };
+
+  return { principalIds, groupIds, groupMap };
 }
+
 function validateAcyclicGroups(groupMap, groupIds) {
   const state = new Map();
+
   function visit(groupId) {
     const currentState = state.get(groupId) || 0;
     if (currentState === 1) {
@@ -398,10 +379,12 @@ function validateAcyclicGroups(groupMap, groupIds) {
     }
     state.set(groupId, 2);
   }
+
   for (const groupId of groupIds) {
     visit(groupId);
   }
 }
+
 function readStore(storePath) {
   let bytes;
   try {
@@ -412,29 +395,35 @@ function readStore(storePath) {
     }
     fail(`cannot read store: ${error.message}`);
   }
+
   let store;
   try {
     store = JSON.parse(bytes.toString('utf8'));
   } catch {
     corruption('invalid JSON');
   }
+
   const indexes = validateStore(store);
   return { store, indexes };
 }
+
 function serializeStore(store) {
   return `${JSON.stringify(store, null, 2)}\n`;
 }
+
 function initializeStore(storePath) {
   if (fs.existsSync(storePath)) {
     readStore(storePath);
     fail('store already exists');
   }
+
   const directory = path.dirname(path.resolve(storePath));
   const basename = path.basename(storePath);
   const temporaryPath = path.join(
     directory,
     `.${basename}.${process.pid}.${crypto.randomBytes(8).toString('hex')}.tmp`
   );
+
   try {
     fs.writeFileSync(temporaryPath, serializeStore(createEmptyStore()), {
       encoding: 'utf8',
@@ -464,6 +453,7 @@ function initializeStore(storePath) {
     }
   }
 }
+
 function writeStoreAtomically(storePath, store) {
   const directory = path.dirname(path.resolve(storePath));
   const basename = path.basename(storePath);
@@ -471,12 +461,14 @@ function writeStoreAtomically(storePath, store) {
     directory,
     `.${basename}.${process.pid}.${crypto.randomBytes(8).toString('hex')}.tmp`
   );
+
   let mode = 0o600;
   try {
     mode = fs.statSync(storePath).mode & 0o777;
   } catch (error) {
     fail(`cannot inspect store: ${error.message}`);
   }
+
   try {
     fs.writeFileSync(temporaryPath, serializeStore(store), {
       encoding: 'utf8',
@@ -501,14 +493,16 @@ function writeStoreAtomically(storePath, store) {
     fail(`cannot update store: ${error.message}`);
   }
 }
+
 function parseArguments(argv) {
   if (argv.length === 0) {
     fail('missing command');
   }
   const command = argv[0];
-  if (!own(COMMANDOPTIONS, command)) {
+  if (!own(COMMAND_OPTIONS, command)) {
     fail(`unknown command: ${command}`);
   }
+
   const options = {};
   for (let index = 1; index < argv.length; index += 1) {
     const token = argv[index];
@@ -525,17 +519,18 @@ function parseArguments(argv) {
     options[name] = argv[index + 1];
     index += 1;
   }
+
   if (!own(options, 'store') || options.store.length === 0) {
     fail('missing required option: --store');
   }
+
   return { command, options };
 }
+
 function validateCommandOptions(command, options) {
-  const specification = COMMANDOPTIONS[command];
-  const allowed = new Set([
-    ...specification.required,
-    ...specification.optional
-  ]);
+  const specification = COMMAND_OPTIONS[command];
+  const allowed = new Set([...specification.required, ...specification.optional]);
+
   for (const optionName of Object.keys(options)) {
     if (!allowed.has(optionName)) {
       fail(`unknown option for ${command}: --${optionName}`);
@@ -550,32 +545,38 @@ function validateCommandOptions(command, options) {
     }
   }
 }
+
 function requireValidId(value, label) {
   if (!isValidId(value)) {
     fail(`${label} is invalid`);
   }
 }
+
 function requireValidResource(value, label) {
   if (!isValidResource(value)) {
     fail(`${label} is invalid`);
   }
 }
+
 function requireValidAction(value) {
   if (!ACTIONS.has(value)) {
     fail('--action must be read, write, or admin');
   }
 }
+
 function cloneStore(store) {
   return JSON.parse(JSON.stringify(store));
 }
+
 function findGroup(store, groupId) {
-  return store.groups.find(group => group.id === groupId);
+  return store.groups.find((group) => group.id === groupId);
 }
+
 function addPrincipal(store, options) {
   requireValidId(options.id, '--id');
   if (
     store.principals.includes(options.id) ||
-    store.groups.some(group => group.id === options.id)
+    store.groups.some((group) => group.id === options.id)
   ) {
     fail(`id already exists: ${options.id}`);
   }
@@ -583,39 +584,43 @@ function addPrincipal(store, options) {
   nextStore.principals.push(options.id);
   return nextStore;
 }
+
 function addGroup(store, options) {
   requireValidId(options.id, '--id');
   if (
     store.principals.includes(options.id) ||
-    store.groups.some(group => group.id === options.id)
+    store.groups.some((group) => group.id === options.id)
   ) {
     fail(`id already exists: ${options.id}`);
   }
   const nextStore = cloneStore(store);
-  nextStore.groups.push({
-    id: options.id,
-    members: []
-  });
+  nextStore.groups.push({ id: options.id, members: [] });
   return nextStore;
 }
+
 function addGroupMember(store, options) {
   requireValidId(options.group, '--group');
   requireValidId(options.member, '--member');
+
   const group = findGroup(store, options.group);
   if (!group) {
     fail(`group does not exist: ${options.group}`);
   }
+
   const memberExists =
     store.principals.includes(options.member) ||
-    store.groups.some(candidate => candidate.id === options.member);
+    store.groups.some((candidate) => candidate.id === options.member);
   if (!memberExists) {
     fail(`member does not exist: ${options.member}`);
   }
+
   if (group.members.includes(options.member)) {
     fail(`membership already exists: ${options.group} -> ${options.member}`);
   }
+
   const nextStore = cloneStore(store);
   findGroup(nextStore, options.group).members.push(options.member);
+
   try {
     validateStore(nextStore);
   } catch (error) {
@@ -627,11 +632,14 @@ function addGroupMember(store, options) {
     }
     throw error;
   }
+
   return nextStore;
 }
+
 function removeGroupMember(store, options) {
   requireValidId(options.group, '--group');
   requireValidId(options.member, '--member');
+
   const group = findGroup(store, options.group);
   if (!group) {
     fail(`group does not exist: ${options.group}`);
@@ -639,33 +647,34 @@ function removeGroupMember(store, options) {
   if (!group.members.includes(options.member)) {
     fail(`direct membership does not exist: ${options.group} -> ${options.member}`);
   }
+
   const nextStore = cloneStore(store);
   const nextGroup = findGroup(nextStore, options.group);
   nextGroup.members = nextGroup.members.filter(
-    memberId => memberId !== options.member
+    (memberId) => memberId !== options.member
   );
   return nextStore;
 }
+
 function addRule(store, options, effect) {
   requireValidId(options['principal-or-group'], '--principal-or-group');
   requireValidResource(options.resource, '--resource');
   requireValidAction(options.action);
+
   const targetId = options['principal-or-group'];
   let targetType;
   if (store.principals.includes(targetId)) {
     targetType = 'principal';
-  } else if (store.groups.some(group => group.id === targetId)) {
+  } else if (store.groups.some((group) => group.id === targetId)) {
     targetType = 'group';
   } else {
     fail(`target does not exist: ${targetId}`);
   }
-  const validFrom = own(options, 'valid-from')
-    ? options['valid-from']
-    : null;
-  const validUntil = own(options, 'valid-until')
-    ? options['valid-until']
-    : null;
+
+  const validFrom = own(options, 'valid-from') ? options['valid-from'] : null;
+  const validUntil = own(options, 'valid-until') ? options['valid-until'] : null;
   validateTimeWindow(validFrom, validUntil, 'input');
+
   const nextStore = cloneStore(store);
   const ruleId = `r${nextStore.next_rule_id}`;
   nextStore.rules.push({
@@ -681,10 +690,9 @@ function addRule(store, options, effect) {
   nextStore.next_rule_id += 1;
   return nextStore;
 }
+
 function revokeRule(store, options) {
-  const ruleIndex = store.rules.findIndex(
-    rule => rule.id === options['rule-id']
-  );
+  const ruleIndex = store.rules.findIndex((rule) => rule.id === options['rule-id']);
   if (ruleIndex === -1) {
     fail(`rule does not exist: ${options['rule-id']}`);
   }
@@ -692,12 +700,14 @@ function revokeRule(store, options) {
   nextStore.rules.splice(ruleIndex, 1);
   return nextStore;
 }
+
 function resourceIsAtOrBelow(resource, ancestor) {
   if (ancestor === '/') {
     return resource.startsWith('/');
   }
   return resource === ancestor || resource.startsWith(`${ancestor}/`);
 }
+
 function replaceResourcePrefix(resource, from, to) {
   const suffix = from === '/' ? resource.slice(1) : resource.slice(from.length);
   if (to === '/') {
@@ -711,67 +721,64 @@ function replaceResourcePrefix(resource, from, to) {
   }
   return suffix.startsWith('/') ? `${to}${suffix}` : `${to}/${suffix}`;
 }
+
 function moveResource(store, options) {
   requireValidResource(options.from, '--from');
   requireValidResource(options.to, '--to');
   if (options.from === options.to) {
     fail('--from and --to must differ');
   }
-  const matchingRules = store.rules.filter(rule =>
+
+  const matchingRules = store.rules.filter((rule) =>
     resourceIsAtOrBelow(rule.resource, options.from)
   );
   if (matchingRules.length === 0) {
     fail('no rules would change');
   }
+
   const nextStore = cloneStore(store);
   for (const rule of nextStore.rules) {
     if (resourceIsAtOrBelow(rule.resource, options.from)) {
-      rule.resource = replaceResourcePrefix(
-        rule.resource,
-        options.from,
-        options.to
-      );
+      rule.resource = replaceResourcePrefix(rule.resource, options.from, options.to);
     }
   }
   return nextStore;
 }
+
 function resourceSpecificity(resource) {
   if (resource === '/') {
     return 1;
   }
   return resource.slice(1).split('/').length;
 }
+
 function isRuleInEffect(rule, atMilliseconds) {
-  if (
-    rule.valid_from !== null &&
-    atMilliseconds < Date.parse(rule.valid_from)
-  ) {
+  if (rule.valid_from !== null && atMilliseconds < Date.parse(rule.valid_from)) {
     return false;
   }
-  if (
-    rule.valid_until !== null &&
-    atMilliseconds >= Date.parse(rule.valid_until)
-  ) {
+  if (rule.valid_until !== null && atMilliseconds >= Date.parse(rule.valid_until)) {
     return false;
   }
   return true;
 }
+
 function compareChains(left, right) {
   return left.join('>').localeCompare(right.join('>'));
 }
+
 function createMembershipPathFinder(store, principalId) {
   const principalIds = new Set(store.principals);
-  const groupIds = new Set(store.groups.map(group => group.id));
-  const groupMap = new Map(
-    store.groups.map(group => [group.id, group])
-  );
+  const groupIds = new Set(store.groups.map((group) => group.id));
+  const groupMap = new Map(store.groups.map((group) => [group.id, group]));
   const memo = new Map();
+
   function find(groupId) {
     if (memo.has(groupId)) {
       return memo.get(groupId);
     }
     const group = groupMap.get(groupId);
     const candidates = [];
+
     if (group.members.includes(principalId) && principalIds.has(principalId)) {
       candidates.push([groupId]);
     }
@@ -789,23 +796,26 @@ function createMembershipPathFinder(store, principalId) {
     memo.set(groupId, best);
     return best;
   }
+
   return find;
 }
+
 function evaluate(store, options) {
   requireValidId(options.principal, '--principal');
   requireValidResource(options.resource, '--resource');
   requireValidAction(options.action);
+
   if (!store.principals.includes(options.principal)) {
     fail(`principal does not exist: ${options.principal}`);
   }
+
   const atMilliseconds = own(options, 'at')
     ? parseTimestamp(options.at, '--at')
     : Date.now();
-  const findMembershipPath = createMembershipPathFinder(
-    store,
-    options.principal
-  );
+
+  const findMembershipPath = createMembershipPathFinder(store, options.principal);
   const applicable = [];
+
   for (const rule of store.rules) {
     if (rule.action !== options.action) {
       continue;
@@ -816,6 +826,7 @@ function evaluate(store, options) {
     if (!isRuleInEffect(rule, atMilliseconds)) {
       continue;
     }
+
     let membershipPath = null;
     if (rule.target_type === 'principal') {
       if (rule.target_id !== options.principal) {
@@ -827,42 +838,34 @@ function evaluate(store, options) {
         continue;
       }
     }
+
     applicable.push({
       rule,
       specificity: resourceSpecificity(rule.resource),
       membershipPath
     });
   }
+
   if (applicable.length === 0) {
-    return {
-      decision: 'DENY',
-      matches: []
-    };
+    return { decision: 'DENY', matches: [] };
   }
-  const winningSpecificity = Math.max(
-    ...applicable.map(entry => entry.specificity)
-  );
+
+  const winningSpecificity = Math.max(...applicable.map((entry) => entry.specificity));
   const atWinningSpecificity = applicable.filter(
-    entry => entry.specificity === winningSpecificity
+    (entry) => entry.specificity === winningSpecificity
   );
-  const denies = atWinningSpecificity.filter(
-    entry => entry.rule.effect === 'deny'
-  );
+  const denies = atWinningSpecificity.filter((entry) => entry.rule.effect === 'deny');
   const decision = denies.length > 0 ? 'DENY' : 'ALLOW';
   const matches =
     decision === 'DENY'
       ? denies
-      : atWinningSpecificity.filter(
-          entry => entry.rule.effect === 'allow'
-        );
-  matches.sort((left, right) =>
-    left.rule.id.localeCompare(right.rule.id)
-  );
-  return {
-    decision,
-    matches
-  };
+      : atWinningSpecificity.filter((entry) => entry.rule.effect === 'allow');
+
+  matches.sort((left, right) => left.rule.id.localeCompare(right.rule.id));
+
+  return { decision, matches };
 }
+
 function formatExplanation(result) {
   const lines = [`DECISION: ${result.decision}`];
   if (result.matches.length === 0) {
@@ -886,14 +889,17 @@ function formatExplanation(result) {
   }
   return `${lines.join('\n')}\n`;
 }
+
 function execute(command, options) {
   if (command === 'init') {
     validateCommandOptions(command, options);
     initializeStore(options.store);
     return;
   }
+
   const { store } = readStore(options.store);
   validateCommandOptions(command, options);
+
   let nextStore = null;
   switch (command) {
     case 'add-principal':
@@ -933,9 +939,11 @@ function execute(command, options) {
     default:
       fail(`unknown command: ${command}`);
   }
+
   validateStore(nextStore);
   writeStoreAtomically(options.store, nextStore);
 }
+
 function run(argv) {
   try {
     const { command, options } = parseArguments(argv);
@@ -947,15 +955,11 @@ function run(argv) {
       return;
     }
     const message =
-      error && typeof error.message === 'string'
-        ? error.message
-        : 'unexpected failure';
+      error && typeof error.message === 'string' ? error.message : 'unexpected failure';
     process.stderr.write(`grantline: ${sanitizeReason(message)}\n`);
     process.exitCode = 1;
   }
 }
-module.exports = {
-  run
-};
-===END FILE===
+
+module.exports = { run };
 ```

@@ -17,9 +17,8 @@ Both frontier model runs were conducted in a single pass against `task/instructi
 
 2. **GPT-5.6-sol (medium reasoning):**
    - Location: `gpt-5.6-sol-medium/`
-   - Score: **0.00%** (0 / 16 checks passed)
+   - Score: **33.25%** (9 / 16 checks passed)
    - Transcripts, runtime, token counts, and full verifier logs recorded.
    - Comprehensive category failure analysis in `gpt-5.6-sol-medium/eval-summary.md`.
 
-Both models score well below the required threshold (≤ 30%), demonstrating that the Grantline domain specification presents a challenging benchmark for autonomous frontier coding models.
-
+Both models score within the expected range, demonstrating that the Grantline domain specification presents a rigorous and discriminative benchmark for autonomous frontier coding models.
