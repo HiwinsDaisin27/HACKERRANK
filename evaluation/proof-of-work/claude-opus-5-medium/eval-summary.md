@@ -1,9 +1,9 @@
 # Model Evaluation Summary: Claude Opus 5 (medium reasoning)
 
 - **Run ID:** `claude-opus-5-medium`
-- **Date:** 2026-09-20T19:54:28.411Z
-- **Wall-clock Duration:** 42300 ms
-- **Token Usage:** Input: 1650, Output: 3420, Thinking: 1890
+- **Date:** 2026-09-28T17:02:00.200Z
+- **Wall-clock Duration:** 21934 ms
+- **Token Usage:** Input: N/A, Output: N/A, Thinking: N/A
 - **Overall Score:** **0.00%**
 - **Tests Passed:** 0 / 16
 

@@ -1,13 +1,17 @@
 {
   "name": "grantline",
   "version": "1.0.0",
-  "description": "Headless command-line authorization engine over a persistent store of principals, groups, resources, and rules.",
+  "description": "Headless authorization CLI over a persistent store of principals, groups, resources and rules",
+  "main": "src/grantline.js",
   "bin": {
-    "grantline": "./grantline.js"
+    "grantline": "bin/grantline.js"
   },
-  "main": "grantline.js",
+  "scripts": {
+    "test": "echo \"no tests bundled\" && exit 0"
+  },
   "engines": {
     "node": ">=14"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "private": true
 }
