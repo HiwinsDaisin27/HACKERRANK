@@ -109,7 +109,18 @@ export function formatExplain(store, principalId, resourcePath, action, atTs) {
   if (result.rules.length === 0) {
     lines.push('MATCH: none');
   } else {
-    const sorted = [...result.rules].sort((a, b) => a.rule.id.localeCompare(b.rule.id));
+    const parseRuleNum = (id) => {
+      const m = String(id).match(/^rule-(\d+)$/);
+      return m ? parseInt(m[1], 10) : id;
+    };
+    const sorted = [...result.rules].sort((a, b) => {
+      const numA = parseRuleNum(a.rule.id);
+      const numB = parseRuleNum(b.rule.id);
+      if (typeof numA === 'number' && typeof numB === 'number') {
+        return numA - numB;
+      }
+      return String(a.rule.id).localeCompare(String(b.rule.id), undefined, { numeric: true });
+    });
     for (const entry of sorted) {
       lines.push(`MATCH: ${formatExplainLine(entry)}`);
     }

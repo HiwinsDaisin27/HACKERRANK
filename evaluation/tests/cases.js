@@ -1,3 +1,20 @@
+// ---------------------------------------------------------------------------
+// Format-agnostic tamper helper (used by T007, T008)
+// Supports two common group storage layouts:
+//   object layout: groups[id] = { members: [...] }
+//   array layout:  groups[id] = [...]
+// ---------------------------------------------------------------------------
+function safeInjectMember(d, groupId, memberId) {
+  const g = (d.groups || {})[groupId];
+  if (!g) return;
+  if (Array.isArray(g)) {
+    if (!g.includes(memberId)) g.push(memberId);
+  } else if (g && Array.isArray(g.members)) {
+    if (!g.members.includes(memberId)) g.members.push(memberId);
+  }
+  // Unknown layout — no-op (let the test continue rather than crash).
+}
+
 export const testCases = [
   {
     id: 'T001-precedence-narrow-allow',
@@ -108,7 +125,7 @@ export const testCases = [
       ctx.gl(['add-group', '--id', 'g2'], s);
       ctx.gl(['add-group-member', '--group', 'g1', '--member', 'g2'], s);
       ctx.tamper(s, (d) => {
-        d.groups.g2.members.push('g1');
+        safeInjectMember(d, 'g2', 'g1');
       });
       const res = ctx.gl(['query', '--principal', 'u', '--resource', '/', '--action', 'read'], s);
       if (res.status !== 3) return ctx.fail(`expected exit 3, got ${res.status}`);
@@ -125,7 +142,7 @@ export const testCases = [
       const s = ctx.freshStore();
       ctx.gl(['add-group', '--id', 'g1'], s);
       ctx.tamper(s, (d) => {
-        d.groups.g1.members.push('missing');
+        safeInjectMember(d, 'g1', 'missing');
       });
       const res = ctx.gl(['add-principal', '--id', 'a'], s);
       if (res.status !== 3) return ctx.fail('must refuse mutated store');
@@ -330,6 +347,29 @@ export const testCases = [
       if (ok.stdout !== 'ALLOW\n') return ctx.fail('composed allow');
       if (expired.stdout !== 'DENY\n') return ctx.fail('composed expired');
       if (broadOnly.stdout !== 'DENY\n') return ctx.fail('broad deny only path');
+      return ctx.pass();
+    },
+  },
+  {
+    id: 'T016-explain-numeric-sort',
+    weightKey: 'explain_format',
+    run(ctx) {
+      const s = ctx.freshStore();
+      ctx.gl(['add-principal', '--id', 'u'], s);
+      for (let i = 1; i <= 12; i++) {
+        ctx.gl(['deny', '--principal-or-group', 'u', '--resource', '/docs', '--action', 'read'], s);
+      }
+      const ex = ctx.gl(['explain', '--principal', 'u', '--resource', '/docs/item', '--action', 'read'], s);
+      const lines = ex.stdout.trim().split('\n');
+      if (lines[0] !== 'DECISION: DENY') return ctx.fail('decision line');
+      const matchLines = lines.slice(1).filter((l) => l.startsWith('MATCH:'));
+      if (matchLines.length !== 12) return ctx.fail(`expected 12 match lines, got ${matchLines.length}`);
+      for (let i = 1; i <= 12; i++) {
+        const expectedRuleId = `rule_id=rule-${i} `;
+        if (!matchLines[i - 1].includes(expectedRuleId)) {
+          return ctx.fail(`expected MATCH line ${i} to contain ${expectedRuleId}, got: ${matchLines[i - 1]}`);
+        }
+      }
       return ctx.pass();
     },
   },

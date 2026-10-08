@@ -1,101 +1,95 @@
 {
-  "score": 0,
+  "score": 0.38000000000000006,
   "results": [
     {
       "id": "T001-precedence-narrow-allow",
       "weightKey": "precedence_composed",
-      "pass": false,
-      "message": "narrow allow must beat broad deny"
+      "pass": true
     },
     {
       "id": "T002-precedence-deny-same-specificity",
       "weightKey": "precedence_composed",
-      "pass": false,
-      "message": "deny wins at max specificity"
+      "pass": true
     },
     {
       "id": "T003-diamond-explain-path",
       "weightKey": "group_nesting_composed",
       "pass": false,
-      "message": "unexpected explain:\n"
+      "message": "unexpected explain:\nDECISION: ALLOW\nMATCH: rule_id=r000001 effect=allow action=read resource=/x specificity=1 target_type=group target_id=top membership_path=top>left>bottom\n"
     },
     {
       "id": "T004-cycle-three-node",
       "weightKey": "cycle_atomicity",
-      "pass": false,
-      "message": "ENOENT: no such file or directory, open 'C:\\Users\\HIWINS~1\\AppData\\Local\\Temp\\grantline-nGz0gl\\store.json'"
+      "pass": true
     },
     {
       "id": "T005-cycle-two-node",
       "weightKey": "cycle_atomicity",
-      "pass": false,
-      "message": "ENOENT: no such file or directory, open 'C:\\Users\\HIWINS~1\\AppData\\Local\\Temp\\grantline-rXQ7D1\\store.json'"
+      "pass": true
     },
     {
       "id": "T006-revoke-cascades-deep",
       "weightKey": "revocation_composed",
       "pass": false,
-      "message": "pre-revoke allow"
+      "message": "post-revoke must deny nested principal"
     },
     {
       "id": "T007-corruption-cycle-on-load",
       "weightKey": "tamper_detection",
-      "pass": false,
-      "message": "ENOENT: no such file or directory, open 'C:\\Users\\HIWINS~1\\AppData\\Local\\Temp\\grantline-IW68BT\\store.json'"
+      "pass": true
     },
     {
       "id": "T008-corruption-dangling-member",
       "weightKey": "tamper_detection",
-      "pass": false,
-      "message": "ENOENT: no such file or directory, open 'C:\\Users\\HIWINS~1\\AppData\\Local\\Temp\\grantline-eHVbTD\\store.json'"
+      "pass": true
     },
     {
       "id": "T009-time-bound-expired",
       "weightKey": "time_bounds_composed",
-      "pass": false,
-      "message": "expired rule must not apply at valid_until"
+      "pass": true
     },
     {
       "id": "T010-time-with-nested-group",
       "weightKey": "time_bounds_composed",
-      "pass": false,
-      "message": "time window with group inheritance"
+      "pass": true
     },
     {
       "id": "T011-move-resource-prefix",
       "weightKey": "resource_move",
-      "pass": false,
-      "message": "moved prefix should match"
+      "pass": true
     },
     {
       "id": "T012-explain-default-deny",
       "weightKey": "explain_format",
-      "pass": false,
-      "message": "default deny explain"
+      "pass": true
     },
     {
       "id": "T013-explain-multi-deny-sorted",
       "weightKey": "explain_format",
       "pass": false,
-      "message": "decision line"
+      "message": "sorted by rule_id"
     },
     {
       "id": "T014-basic-grant-smoke",
       "weightKey": "basic_smoke",
-      "pass": false,
-      "message": "basic grant"
+      "pass": true
     },
     {
       "id": "T015-composed-precedence-time-nesting",
       "weightKey": "composed_scenarios",
+      "pass": true
+    },
+    {
+      "id": "T016-explain-numeric-sort",
+      "weightKey": "explain_format",
       "pass": false,
-      "message": "composed allow"
+      "message": "expected MATCH line 1 to contain rule_id=rule-1 , got: MATCH: rule_id=r000001 effect=deny action=read resource=/docs specificity=1 target_type=principal target_id=u"
     },
     {
       "id": "T-GEN-oracle-sessions",
       "weightKey": "generated_oracle",
       "pass": false,
-      "message": "init failed session 0"
+      "message": "session 1 step 2 status 0 vs 1 cmd=revoke --rule-id rule-1"
     }
   ],
   "byKey": {
@@ -104,15 +98,15 @@
       "total": 1
     },
     "composed_scenarios": {
-      "pass": 0,
+      "pass": 1,
       "total": 1
     },
     "precedence_composed": {
-      "pass": 0,
+      "pass": 2,
       "total": 2
     },
     "time_bounds_composed": {
-      "pass": 0,
+      "pass": 2,
       "total": 2
     },
     "group_nesting_composed": {
@@ -124,23 +118,23 @@
       "total": 1
     },
     "tamper_detection": {
-      "pass": 0,
+      "pass": 2,
       "total": 2
     },
     "cycle_atomicity": {
-      "pass": 0,
+      "pass": 2,
       "total": 2
     },
     "explain_format": {
-      "pass": 0,
-      "total": 2
+      "pass": 1,
+      "total": 3
     },
     "resource_move": {
-      "pass": 0,
+      "pass": 1,
       "total": 1
     },
     "basic_smoke": {
-      "pass": 0,
+      "pass": 1,
       "total": 1
     }
   }

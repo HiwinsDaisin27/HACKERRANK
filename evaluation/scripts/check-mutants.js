@@ -78,7 +78,7 @@ function main() {
 
     const hand = runHandTests(bin);
     const gen = runGeneratedAgainstOracle(bin);
-    const caught = !gen.pass;
+    const caught = !gen.pass || hand.score < 0.999;
     results.push({
       name,
       handScore: hand.score,

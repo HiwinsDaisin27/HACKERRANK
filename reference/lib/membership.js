@@ -43,7 +43,7 @@ export function membershipPathsFromTarget(store, principalId, targetGroupId) {
       paths.push(chain.join('>'));
     }
     for (const m of g.members) {
-      if (store.groups[m]) {
+      if (store.groups[m] && !chain.includes(m)) {
         walk(m, chain);
       }
     }

@@ -27,6 +27,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { spawnSync } from 'child_process';
+import { resolveCandidateEntrypoint, resolveGrantlineBinSpec } from '../lib/harness.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 
@@ -103,28 +104,15 @@ if (!solutionDir) {
 
 // Determine entrypoint
 let grantlineBin = process.env.GRANTLINE_BIN;
-if (!grantlineBin) {
-  if (fs.existsSync(path.join(solutionDir, 'package.json'))) {
-    try {
-      const pkg = JSON.parse(fs.readFileSync(path.join(solutionDir, 'package.json'), 'utf8'));
-      if (pkg.bin) {
-        const binRel = typeof pkg.bin === 'string' ? pkg.bin : Object.values(pkg.bin)[0];
-        if (binRel && fs.existsSync(path.join(solutionDir, binRel))) {
-          grantlineBin = `node ${path.join(solutionDir, binRel)}`;
-        }
-      } else if (pkg.main && fs.existsSync(path.join(solutionDir, pkg.main))) {
-        grantlineBin = `node ${path.join(solutionDir, pkg.main)}`;
-      }
-    } catch (_) {}
-  }
-  if (!grantlineBin) {
-    if (fs.existsSync(path.join(solutionDir, 'bin/grantline.js'))) {
-      grantlineBin = `node ${path.join(solutionDir, 'bin/grantline.js')}`;
-    } else if (fs.existsSync(path.join(solutionDir, 'grantline.js'))) {
-      grantlineBin = `node ${path.join(solutionDir, 'grantline.js')}`;
-    } else {
-      grantlineBin = `node ${path.join(solutionDir, 'bin/grantline.js')}`;
-    }
+if (grantlineBin) {
+  const resolved = resolveGrantlineBinSpec(grantlineBin);
+  if (resolved) grantlineBin = resolved;
+} else {
+  const resolved = resolveCandidateEntrypoint(solutionDir);
+  if (resolved) {
+    grantlineBin = resolved;
+  } else {
+    grantlineBin = `node ${path.join(solutionDir, 'bin/grantline.js')}`;
   }
 }
 

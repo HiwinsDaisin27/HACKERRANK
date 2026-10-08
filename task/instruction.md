@@ -84,7 +84,7 @@ grantline move-resource --store <path> --from <path> --to <path>
 - **`add-principal` / `add-group`** — reject duplicates; group ids must not collide with principal ids.
 - **`add-group-member`** — member must exist; reject duplicate membership; **reject any group nesting that would create a cycle** (including cycles longer than two groups).
 - **`remove-group-member`** — reject if not a direct member.
-- **`grant` / `deny`** — target must exist; paths and actions must be valid; if both time bounds are set, `valid_from` must be earlier than `valid_until`. Assign each new rule a unique **`rule-id`** (callers discover ids via `explain` or creation order).
+- **`grant` / `deny`** — target must exist; paths and actions must be valid; if both time bounds are set, `valid_from` must be earlier than `valid_until`. Rule ids are assigned sequentially as `rule-1`, `rule-2`, `rule-3`, … in creation order (1-indexed across all rules created in the store). Rule ids are never reused or re-indexed after a rule is revoked.
 - **`revoke`** — remove rule by id; after success, **all** principals must immediately reflect the removal, including via nested groups.
 - **`query`** — print exactly `ALLOW` or `DENY` plus a newline, nothing else.
 - **`move-resource`** — rewrite every rule whose resource equals `--from` or sits under `--from/…` by swapping that prefix for `--to`. Reject if `--from` equals `--to` or nothing would change.
@@ -101,7 +101,7 @@ Stdout must end with a newline.
 
 For `target_type=group`, append ` membership_path=<chain>` where `<chain>` is group ids joined by `>` from the rule’s target group down to a group that **directly** lists the queried principal. If several chains exist (diamond), use the **lexicographically smallest** chain.
 
-Sort `MATCH:` lines by `rule_id`. Use single spaces as shown; no trailing spaces on lines.
+Sort `MATCH:` lines by the numeric suffix of `rule_id` in ascending order (`rule-1`, `rule-2`, …, `rule-9`, `rule-10`, `rule-11`). Use single spaces as shown; no trailing spaces on lines.
 
 **Specificity** in the output is the segment count of the rule’s resource path (`/` → `1`, `/finance/reports` → `2`).
 

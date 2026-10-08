@@ -1,16 +1,68 @@
-file:///C:/Users/HIWINS%20DAISIN/OneDrive/Desktop/800/evaluation/tests/generated-oracle.js:63
-  if (!data.groups[g2].members.includes(g1)) {
-                               ^
+﻿PASS T001-precedence-narrow-allow
+PASS T002-precedence-deny-same-specificity
+FAIL T003-diamond-explain-path ΓÇö unexpected explain:
+DECISION: ALLOW
+MATCH: rule_id=r000001 effect=allow action=read resource=/x specificity=1 target_type=group target_id=top membership_path=top>left>bottom
 
-TypeError: Cannot read properties of undefined (reading 'includes')
-    at tamperTwoNodeCycle (file:///C:/Users/HIWINS%20DAISIN/OneDrive/Desktop/800/evaluation/tests/generated-oracle.js:63:32)
-    at runSession (file:///C:/Users/HIWINS%20DAISIN/OneDrive/Desktop/800/evaluation/tests/generated-oracle.js:232:7)
-    at runGeneratedOracleSuite (file:///C:/Users/HIWINS%20DAISIN/OneDrive/Desktop/800/evaluation/tests/generated-oracle.js:299:20)
-    at runAllTests (file:///C:/Users/HIWINS%20DAISIN/OneDrive/Desktop/800/evaluation/tests/run-tests.js:67:17)
-    at main (file:///C:/Users/HIWINS%20DAISIN/OneDrive/Desktop/800/evaluation/tests/run-tests.js:85:37)
-    at file:///C:/Users/HIWINS%20DAISIN/OneDrive/Desktop/800/evaluation/tests/run-tests.js:114:3
-    at ModuleJob.run (node:internal/modules/esm/module_job:430:25)
-    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:661:26)
-    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+PASS T004-cycle-three-node
+PASS T005-cycle-two-node
+FAIL T006-revoke-cascades-deep ΓÇö post-revoke must deny nested principal
+PASS T007-corruption-cycle-on-load
+PASS T008-corruption-dangling-member
+PASS T009-time-bound-expired
+PASS T010-time-with-nested-group
+PASS T011-move-resource-prefix
+PASS T012-explain-default-deny
+FAIL T013-explain-multi-deny-sorted ΓÇö sorted by rule_id
+PASS T014-basic-grant-smoke
+PASS T015-composed-precedence-time-nesting
+FAIL T016-explain-numeric-sort ΓÇö expected MATCH line 1 to contain rule_id=rule-1 , got: MATCH: rule_id=r000001 effect=deny action=read resource=/docs specificity=1 target_type=principal target_id=u
+FAIL T-GEN-oracle-sessions ΓÇö session 1 step 2 status 0 vs 1 cmd=revoke --rule-id rule-1
 
-Node.js v24.14.0
+Score: 38.00%
+{
+  "generated_oracle": {
+    "pass": 0,
+    "total": 1
+  },
+  "composed_scenarios": {
+    "pass": 1,
+    "total": 1
+  },
+  "precedence_composed": {
+    "pass": 2,
+    "total": 2
+  },
+  "time_bounds_composed": {
+    "pass": 2,
+    "total": 2
+  },
+  "group_nesting_composed": {
+    "pass": 0,
+    "total": 1
+  },
+  "revocation_composed": {
+    "pass": 0,
+    "total": 1
+  },
+  "tamper_detection": {
+    "pass": 2,
+    "total": 2
+  },
+  "cycle_atomicity": {
+    "pass": 2,
+    "total": 2
+  },
+  "explain_format": {
+    "pass": 1,
+    "total": 3
+  },
+  "resource_move": {
+    "pass": 1,
+    "total": 1
+  },
+  "basic_smoke": {
+    "pass": 1,
+    "total": 1
+  }
+}

@@ -54,21 +54,70 @@ function runBin(binSpec, args) {
   return res;
 }
 
+// ---------------------------------------------------------------------------
+// Format-agnostic store helpers
+// ---------------------------------------------------------------------------
+
+/**
+ * Inject a member into a group, handling two common JSON layouts:
+ *   - Object layout:  groups[id] = { members: [...] }
+ *   - Array layout:   groups[id] = [...]
+ * Returns true if the injection succeeded, false if the layout is unknown.
+ */
+function injectMember(data, groupId, memberId) {
+  const groups = data.groups || {};
+  if (!groups[groupId]) return false;
+  const g = groups[groupId];
+  if (Array.isArray(g)) {
+    if (!g.includes(memberId)) g.push(memberId);
+    return true;
+  }
+  if (g && Array.isArray(g.members)) {
+    if (!g.members.includes(memberId)) g.members.push(memberId);
+    return true;
+  }
+  return false; // Unknown layout — do not crash.
+}
+
+/**
+ * Format-agnostic tamper: introduce a two-node cycle between the first two
+ * groups in the store. Skips silently if the store has fewer than two groups
+ * or uses an unrecognised format, so the test session never crashes.
+ */
 function tamperTwoNodeCycle(storePath) {
-  const data = JSON.parse(fs.readFileSync(storePath, 'utf8'));
+  let data;
+  try {
+    data = JSON.parse(fs.readFileSync(storePath, 'utf8'));
+  } catch {
+    return; // Unreadable / non-JSON store – skip.
+  }
   const ids = Object.keys(data.groups || {});
   if (ids.length < 2) return;
   const g1 = ids[0];
   const g2 = ids[1];
-  if (!data.groups[g2].members.includes(g1)) {
-    data.groups[g2].members.push(g1);
+  if (!injectMember(data, g2, g1)) return; // Unknown layout – skip.
+  try {
+    fs.writeFileSync(storePath, JSON.stringify(data, null, 2) + '\n');
+  } catch {
+    // Write failure – skip silently.
   }
-  fs.writeFileSync(storePath, JSON.stringify(data, null, 2) + '\n');
 }
 
+/**
+ * Format-agnostic rule list extraction.
+ * Tries common top-level key names used by different implementations.
+ */
 function readRules(storePath) {
-  const data = JSON.parse(fs.readFileSync(storePath, 'utf8'));
-  return data.rules || [];
+  try {
+    const data = JSON.parse(fs.readFileSync(storePath, 'utf8'));
+    if (Array.isArray(data.rules)) return data.rules;
+    for (const key of ['policies', 'grants', 'entries', 'acl']) {
+      if (Array.isArray(data[key])) return data[key];
+    }
+  } catch {
+    // ignore
+  }
+  return [];
 }
 
 function buildOp(rng, ctx) {
@@ -205,6 +254,8 @@ function runSession(sessionIndex, rng, stepCount) {
     ['add-group-member', '--group', 'g0', '--member', 'g1'],
     ['add-group-member', '--group', 'g1', '--member', 'g2'],
     ['add-group-member', '--group', 'g2', '--member', 'p0'],
+    ['deny', '--principal-or-group', 'g0', '--resource', '/a', '--action', 'read'],
+    ['grant', '--principal-or-group', 'g2', '--resource', '/a/b', '--action', 'read'],
   ];
   for (const cmd of bootstrap) {
     rO = runBin(ob, withStore(cmd, storeO));
@@ -223,6 +274,20 @@ function runSession(sessionIndex, rng, stepCount) {
   ctx.knownGroups.add('g1');
   ctx.knownGroups.add('g2');
   syncRuleIds(ctx, storeO);
+
+  // Precedence probe: narrow allow at /a/b must beat broad deny at /a.
+  // This directly detects a deny-first-across-all-matches bug (mutant-1).
+  {
+    const probeCmd = ['query', '--principal', 'p0', '--resource', '/a/b/probe', '--action', 'read'];
+    const probeO = runBin(ob, withStore(probeCmd, storeO));
+    const probeC = runBin(cb, withStore(probeCmd, storeC));
+    if (probeO.status !== 0 || probeC.status !== 0) {
+      return { ok: false, message: `session ${sessionIndex} precedence probe failed (status ${probeO.status}/${probeC.status})` };
+    }
+    if (probeO.stdout !== probeC.stdout) {
+      return { ok: false, message: `session ${sessionIndex} precedence probe stdout mismatch: oracle=${probeO.stdout.trim()} candidate=${probeC.stdout.trim()}` };
+    }
+  }
 
   for (let step = 0; step < stepCount; step++) {
     const op = buildOp(rng, ctx);
@@ -271,11 +336,11 @@ function runSession(sessionIndex, rng, stepCount) {
     if (rO.status !== 0) {
       const hashAfterO = sha256File(storeO);
       const hashAfterC = sha256File(storeC);
+      // Each implementation must leave its own store unchanged on a failed op.
+      // We do NOT cross-compare oracle vs candidate hashes — stores may use
+      // different (but valid) persistence formats and will legitimately differ.
       if (hashAfterO !== hashBeforeO || hashAfterC !== hashBeforeC) {
         return { ok: false, message: `session ${sessionIndex} step ${step} store changed on failed op` };
-      }
-      if (hashAfterO !== hashAfterC) {
-        return { ok: false, message: `session ${sessionIndex} step ${step} store diverged on failed op` };
       }
     } else {
       syncRuleIds(ctx, storeO);

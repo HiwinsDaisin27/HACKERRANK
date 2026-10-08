@@ -23,6 +23,7 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { resolveCandidateEntrypoint } from '../lib/harness.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 
@@ -119,9 +120,10 @@ for (const f of files) {
 }
 
 // Check entrypoint
-const entrypoint = path.join(outDir, 'bin', 'grantline.js');
-if (!fs.existsSync(entrypoint)) {
-  console.warn('Warning: bin/grantline.js not found. Files written:', written.join(', '));
+const candidateBin = resolveCandidateEntrypoint(outDir);
+const entrypoint = candidateBin ? candidateBin.replace(/^node\s+/, '') : path.join(outDir, 'bin', 'grantline.js');
+if (!candidateBin) {
+  console.warn('Warning: candidate entrypoint not found. Files written:', written.join(', '));
 }
 
 // Write parse summary
@@ -133,7 +135,7 @@ const summary = {
   filesWritten: written,
   parseErrors,
   entrypointPath: entrypoint,
-  entrypointExists: fs.existsSync(entrypoint),
+  entrypointExists: !!candidateBin,
 };
 const summaryDest = isDryRun
   ? path.join(root, 'evaluation/_quarantine/dry-run-parse-test/parse-summary.json')

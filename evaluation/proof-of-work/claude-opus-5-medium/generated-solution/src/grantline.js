@@ -1,4 +1,5 @@
 'use strict';
+
 const fs = require('fs');
 const path = require('path');
 
@@ -137,7 +138,6 @@ function validateStore(raw) {
     if (principals.has(p)) bad(`duplicate principal: ${p}`);
     principals.add(p);
   }
-
   const groupIds = Object.keys(raw.groups);
   const groups = new Set(groupIds);
   for (const g of groupIds) {
@@ -260,7 +260,7 @@ function isGroup(store, id) {
   return Object.prototype.hasOwnProperty.call(store.groups, id);
 }
 
-// Can to be reached from from following group->nested-group edges?
+// Can `to` be reached from `from` following group->nested-group edges?
 function groupReaches(store, from, to) {
   const seen = new Set();
   const stack = [from];
@@ -437,7 +437,8 @@ function run(cmd, args, store) {
         const sorted = res.matches.slice().sort((x, y) => cmpStr(x.id, y.id));
         for (const r of sorted) {
           const isG = isGroup(store, r.target);
-          let line = `MATCH: rule_id=${r.id} effect=${r.effect} action=${r.action} resource=${r.resource} specificity=${segCount(r.resource)} target_type=${isG ? 'group' : 'principal'} target_id=${r.target}`;
+          let line = `MATCH: rule_id=${r.id} effect=${r.effect} action=${r.action} resource=${r.resource}` +
+            ` specificity=${segCount(r.resource)} target_type=${isG ? 'group' : 'principal'} target_id=${r.target}`;
           if (isG) line += ` membership_path=${membershipPath(store, r.target, args.principal)}`;
           out += line + '\n';
         }
