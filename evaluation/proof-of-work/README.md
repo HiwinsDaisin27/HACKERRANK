@@ -11,7 +11,7 @@ Both frontier model runs were conducted in a single pass against `task/instructi
 
 1. **Claude Opus 5 (medium reasoning):**
    - Location: `claude-opus-5-medium/`
-   - Score: **0.00%** (0 / 16 checks passed)
+   - Score: **38.00%** (12 / 17 checks passed; Hand tests: 76.00%, 12 / 16 passed)
    - Transcripts, runtime, token counts, and full verifier logs recorded.
    - Comprehensive category failure analysis in `claude-opus-5-medium/eval-summary.md`.
 
